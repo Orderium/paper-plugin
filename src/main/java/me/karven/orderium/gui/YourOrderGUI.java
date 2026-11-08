@@ -40,8 +40,7 @@ public class YourOrderGUI {
         if (orders.size() < config.yourOrdersGUIConfig.rows * 9 && orders.size() < getOrderLimit(p)) {
             gui.addItem(
                     config.yourOrdersGUIConfig.newOrderButton.item(_ -> {
-                        InventoryGUI chooseItemGUI = ChooseItemGUI.getGUI(0, 0);
-                        PlayerUtils.openGUI(p, chooseItemGUI, false);
+                        new PaginatedChooseItemGUI(p).open();
                     }), config.yourOrdersGUIConfig.newOrderButton.slot
             );
         }

@@ -4,8 +4,9 @@ import io.papermc.paper.dialog.Dialog;
 import me.karven.orderium.config.Config;
 import me.karven.orderium.config.util.component.SearchGUITypeConfig;
 import me.karven.orderium.guiframework.InventoryGUI;
-import me.karven.orderium.guiframework.PaginatedGUI;
-import me.karven.orderium.obj.ItemClickContext;
+import me.karven.orderium.guiframework.paginated.ChestGuiPage;
+import me.karven.orderium.guiframework.paginated.ItemClickContext;
+import me.karven.orderium.guiframework.paginated.PaginatedGUI;
 import me.karven.orderium.order.Order;
 import me.karven.orderium.utils.AlgoUtils;
 import me.karven.orderium.utils.DispatchUtil;
@@ -18,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import static me.karven.orderium.Orderium.plugin;
 
@@ -75,28 +77,20 @@ public class MainGUI extends PaginatedGUI<Order> {
         this.sortIndex = sortIndex;
     }
 
-    public void open() {
-        openNextPage();
-    }
-
     @Override
-    protected void populateButtons(final @NotNull InventoryGUI gui) {
-        final int currentPageIndex = builtGUIs.size();
-        if (!builtGUIs.isEmpty()) {
-            final int previousPageIndex = currentPageIndex - 1;
+    protected void populateButtons(final @NotNull ChestGuiPage gui, final int index) {
+        final Supplier<ChestGuiPage> previousPageSupplier = this.previousPageSupplier(index);
+        if (previousPageSupplier != null) {
             gui.addItem(
-                    config.mainGUIConfig.backButton.item(e -> PlayerUtils.clickBack(e, builtGUIs.get(previousPageIndex))),
+                    config.mainGUIConfig.backButton.item(e -> PlayerUtils.clickBack(e, previousPageSupplier.get())),
                     config.mainGUIConfig.backButton.slot
             );
         }
 
-        if (hasNextPage()) {
-            final int nextPageIndex = currentPageIndex + 1;
+        final Supplier<ChestGuiPage> nextPageSupplier = this.nextPageSupplier(index);
+        if (nextPageSupplier != null) {
             gui.addItem(
-                    config.mainGUIConfig.nextButton.item(event -> {
-                        final InventoryGUI nextPage = nextPageIndex < builtGUIs.size() ? builtGUIs.get(nextPageIndex) : getNextPage();
-                        PlayerUtils.clickNext(event, nextPage);
-                    }),
+                    config.mainGUIConfig.nextButton.item(event -> PlayerUtils.clickNext(event, nextPageSupplier.get())),
                     config.mainGUIConfig.nextButton.slot
             );
         }
@@ -104,7 +98,7 @@ public class MainGUI extends PaginatedGUI<Order> {
         gui.addItem(
                 config.mainGUIConfig.refreshButton.item(_ -> {
                     final MainGUI mainGUI = new MainGUI(player, sortIndex, search);
-                    final InventoryGUI skippedPage = mainGUI.skipPages(currentPageIndex);
+                    final InventoryGUI skippedPage = mainGUI.skipPages(index);
                     skippedPage.open(player);
 
                     PlayerUtils.playSound(player, config.refreshSound);
@@ -116,18 +110,19 @@ public class MainGUI extends PaginatedGUI<Order> {
         gui.addItem(
                 config.mainGUIConfig.sortButton.item(_ -> {
                     final MainGUI mainGUI = new MainGUI(player, sortIndex + 1 == config.mainGUIConfig.sortsOrderConfig.orderArray.size() ? 0 : sortIndex + 1, search);
-                    final InventoryGUI skippedPage = mainGUI.skipPages(currentPageIndex);
+                    final InventoryGUI skippedPage = mainGUI.skipPages(index);
                     skippedPage.open(player);
                     PlayerUtils.playSound(player, config.sortSound);
 
                 }, config.mainGUIConfig.sortsOrderConfig.index(sortIndex)),
                 config.mainGUIConfig.sortButton.slot
         );
+
         gui.addItem(
                 config.mainGUIConfig.searchButton.item(_ -> {
                     final Consumer<String> searchAction = query -> DispatchUtil.entity(player, () -> {
-                        final MainGUI mainGUI = new MainGUI(player, query);
-                        mainGUI.openNextPage();
+                        final MainGUI mainGUI = new MainGUI(this.player, this.sortIndex, query);
+                        mainGUI.open();
                     });
 
                     if (config.mainGUIConfig.searchGUITypeConfig.searchGUIType == SearchGUITypeConfig.SearchGUIType.DIALOG) {

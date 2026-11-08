@@ -3,9 +3,7 @@ package me.karven.orderium.gui;
 import io.papermc.paper.dialog.Dialog;
 import io.papermc.paper.registry.data.dialog.action.DialogActionCallback;
 import me.karven.orderium.config.Config;
-import me.karven.orderium.guiframework.InventoryGUI;
 import me.karven.orderium.obj.orderitem.OrderItem;
-import me.karven.orderium.obj.orderitem.SearchableItem;
 import me.karven.orderium.order.ItemOrder;
 import me.karven.orderium.order.Order;
 import me.karven.orderium.utils.PlayerUtils;
@@ -24,8 +22,7 @@ public class NewOrderDialog {
 
         final DialogActionCallback cancelAction = (view, player) -> {
             if (!(player instanceof Player p)) return;
-            InventoryGUI chooseItemGUI = ChooseItemGUI.getGUI(0, 0);
-            PlayerUtils.openGUI(p, chooseItemGUI, false);
+            new PaginatedChooseItemGUI(p).open();
         };
 
         return config.newOrderDialogConfig.dialog(

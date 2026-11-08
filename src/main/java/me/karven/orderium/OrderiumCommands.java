@@ -105,7 +105,7 @@ public class OrderiumCommands {
 //                            final List<OrderItem> items = plugin.getDataCache().getItems(SortType.A_Z).stream().toList();
 //                            final Random random = new Random();
 //                            for (int i = 0; i < 100; i++) {
-//                                Order.create(player, items.get(random.nextInt(items.size() - 1)).getItemStack(), random.nextDouble(10), random.nextInt(10));
+//                                ItemOrder.create(player, items.get(random.nextInt(items.size() - 1)), random.nextDouble(10), random.nextInt(10));
 //                            }
 //                            return Command.SINGLE_SUCCESS;
 //                        })

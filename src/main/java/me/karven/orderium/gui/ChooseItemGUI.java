@@ -1,6 +1,7 @@
 package me.karven.orderium.gui;
 
 import io.papermc.paper.dialog.Dialog;
+import me.karven.orderium.config.Config;
 import me.karven.orderium.config.util.component.SearchGUITypeConfig;
 import me.karven.orderium.guiframework.InventoryGUI;
 import me.karven.orderium.guiframework.InventoryItem;
@@ -14,6 +15,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,8 +23,9 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import static me.karven.orderium.Orderium.plugin;
-import static me.karven.orderium.config.Config.config; // Config is not allowed to reload during the construction of choose item GUI, so tears cannot happen
 
+@Deprecated
+@NullMarked
 public class ChooseItemGUI {
     private static final List<InventoryGUI> AZ = new ArrayList<>();
     private static final List<InventoryGUI> ZA = new ArrayList<>();
@@ -45,16 +48,16 @@ public class ChooseItemGUI {
     }
 
     public static InventoryGUI getGUI(int sortIdx, int pageIdx) {
-        return getPages(config.chooseItemGUIConfig.sortsOrderConfig.index(sortIdx)).get(pageIdx);
+        return getPages(Config.config.chooseItemGUIConfig.sortsOrderConfig.index(sortIdx)).get(pageIdx);
     }
 
     public static InventoryGUI getGUI(int sortIdx, String search) {
         final List<InventoryGUI> pages = new ArrayList<>();
-        createPages(pages, config.chooseItemGUIConfig.sortsOrderConfig.index(sortIdx), search);
+        createPages(pages, Config.config.chooseItemGUIConfig.sortsOrderConfig.index(sortIdx), search);
         return pages.getFirst();
     }
 
-    private static void addButtons(InventoryGUI gui, List<InventoryGUI> pages, SortType sortType, final int idx, final int pagesAmount) {
+    private static void addButtons(InventoryGUI gui, List<InventoryGUI> pages, SortType sortType, final int idx, final int pagesAmount, final Config config) {
         final List<SortType> sortOrder = config.chooseItemGUIConfig.sortsOrderConfig.orderArray;
         final int sortIdx = sortOrder.indexOf(sortType);
 
@@ -122,16 +125,17 @@ public class ChooseItemGUI {
     }
 
     private static void createPages(List<InventoryGUI> pages, SortType sortType, Collection<OrderItem> items) {
+        final Config config = Config.config;
         final int pagesAmount = ConvertUtils.calculatePageAmount(items.size(), config.chooseItemGUIConfig.slots.size());
 
-        InventoryGUI gui = initPage(pages, sortType, 0, pagesAmount);
+        InventoryGUI gui = initPage(pages, sortType, 0, pagesAmount, config);
         int idx = 0, cnt = 0;
         for (OrderItem orderItem : items) {
             if (cnt == config.chooseItemGUIConfig.slots.size()) {
                 cnt = 0;
                 idx++;
                 pages.add(gui);
-                gui = initPage(pages, sortType, idx, pagesAmount);
+                gui = initPage(pages, sortType, idx, pagesAmount, config);
             }
             final InventoryItem guiItem = new InventoryItem(orderItem.getItemStack());
             guiItem.setOnClick(e -> {
@@ -170,9 +174,9 @@ public class ChooseItemGUI {
         pages.add(gui);
     }
 
-    private static InventoryGUI initPage(List<InventoryGUI> pages, SortType sortType, int idx, int pagesAmount) {
+    private static InventoryGUI initPage(List<InventoryGUI> pages, SortType sortType, int idx, int pagesAmount, final Config config) {
         InventoryGUI gui = new InventoryGUI(config.chooseItemGUIConfig.rows, mm.deserialize(config.chooseItemGUIConfig.title), true);
-        addButtons(gui, pages, sortType, idx, pagesAmount);
+        addButtons(gui, pages, sortType, idx, pagesAmount, config);
         return gui;
     }
 }

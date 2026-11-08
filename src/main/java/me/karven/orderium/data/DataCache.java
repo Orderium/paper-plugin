@@ -15,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 public final class DataCache {
     private static final DataCache INSTANCE = new DataCache();
@@ -25,8 +24,8 @@ public final class DataCache {
     }
 
     private static final Registry<BlockType> BLOCK_REGISTRY = Registry.BLOCK;
-    private final NavigableSet<OrderItem> itemsAZ = new ConcurrentSkipListSet<>(AlgoUtils.getComparator(SortType.A_Z));
-    private final NavigableSet<OrderItem> itemsZA = new ConcurrentSkipListSet<>(AlgoUtils.getComparator(SortType.Z_A));
+    private final ArrayList<OrderItem> itemsAZ = new ArrayList<>();
+    private List<OrderItem> itemsZA;
 
     private final Set<CustomItem> customItems = ConcurrentHashMap.newKeySet();
     private final Set<BlacklistedItem> blacklist = ConcurrentHashMap.newKeySet();
@@ -40,28 +39,31 @@ public final class DataCache {
 
     public void setItems(Collection<VanillaItem> vanillaItems, Collection<BlacklistedItem> blacklistedItems, Collection<CustomItem> customItems) {
         itemsAZ.clear();
-        itemsZA.clear();
-        itemsAZ.addAll(vanillaItems);
-        itemsZA.addAll(vanillaItems);
+
+        final Collection<OrderItem> set = new TreeSet<>(AlgoUtils.getComparator(SortType.A_Z));
+        set.addAll(vanillaItems);
+        itemsAZ.addAll(set);
 
         itemsAZ.addAll(customItems);
-        itemsZA.addAll(customItems);
 
         for (BlacklistedItem e : blacklistedItems) {
             itemsAZ.removeIf(orderItem -> orderItem.getItemStack().equals(e.getItemStack()));
-            itemsZA.removeIf(orderItem -> orderItem.getItemStack().equals(e.getItemStack()));
         }
+
+        itemsZA = itemsAZ.reversed();
 
         Log.info("Loaded " + itemsAZ.size() + " items.");
         setBlacklistAndCustomItems(blacklistedItems, customItems);
     }
 
-    public NavigableSet<OrderItem> getItems(SortType sortType) {
-        switch (sortType) {
-            case A_Z -> { return itemsAZ; }
-            case Z_A -> { return itemsZA; }
-        }
-        return itemsAZ;
+    public List<OrderItem> getItems(SortType sortType) {
+        return Collections.unmodifiableList(
+                switch (sortType) {
+                    case A_Z -> itemsAZ;
+                    case Z_A -> itemsZA;
+                    default -> throw new IllegalArgumentException("Sort type is not supported. Must be A_Z or Z_A, found " + sortType);
+                }
+        );
     }
 
     public Set<CustomItem> getCustomItems() { return customItems; }
