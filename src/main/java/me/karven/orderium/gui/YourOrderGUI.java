@@ -39,9 +39,8 @@ public class YourOrderGUI {
 
         if (orders.size() < config.yourOrdersGUIConfig.rows * 9 && orders.size() < getOrderLimit(p)) {
             gui.addItem(
-                    config.yourOrdersGUIConfig.newOrderButton.item(_ -> {
-                        new PaginatedChooseItemGUI(p).open();
-                    }), config.yourOrdersGUIConfig.newOrderButton.slot
+                    config.yourOrdersGUIConfig.newOrderButton.item(_ -> new PaginatedChooseItemGUI(p).open()),
+                    config.yourOrdersGUIConfig.newOrderButton.slot
             );
         }
 

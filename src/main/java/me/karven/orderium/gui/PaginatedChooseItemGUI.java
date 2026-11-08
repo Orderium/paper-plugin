@@ -8,7 +8,6 @@ import me.karven.orderium.data.DataCache;
 import me.karven.orderium.guiframework.InventoryGUI;
 import me.karven.orderium.guiframework.paginated.ChestGuiPage;
 import me.karven.orderium.guiframework.paginated.PaginatedGUI;
-import me.karven.orderium.obj.SortType;
 import me.karven.orderium.obj.orderitem.BlacklistedItem;
 import me.karven.orderium.obj.orderitem.EnchantableItem;
 import me.karven.orderium.obj.orderitem.OrderItem;
@@ -122,7 +121,6 @@ public class PaginatedChooseItemGUI extends PaginatedGUI<OrderItem> {
                         e -> {
                             if (!(e.getWhoClicked() instanceof Player p)) return;
                             final int nextIndex = this.sortOrderIndex == sortOrder.orderArray.size() - 1 ? 0 : this.sortOrderIndex + 1;
-                            final SortType nextSortType = sortOrder.index(nextIndex);
                             new PaginatedChooseItemGUI(
                                     this.config,
                                     nextIndex,
