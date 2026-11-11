@@ -39,7 +39,7 @@ repositories {
 dependencies {
 //    compileOnly("io.papermc.paper:paper-api:1.21.7-R0.1-SNAPSHOT")
     paperweight.paperDevBundle("1.21.8-R0.1-SNAPSHOT")
-    implementation("dev.faststats.metrics:bukkit:0.27.0")
+    implementation("dev.faststats.metrics:bukkit:0.32.2")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7") {
         exclude group: "org.bukkit", module: "bukkit"
     }
@@ -56,6 +56,7 @@ paperweight {
 tasks {
     runServer {
         minecraftVersion("26.3")
+        jvmArgs("-Dfaststats.debug=true", "-Dcom.mojang.eula.agree=true")
     }
 
     shadowJar {
@@ -63,6 +64,19 @@ tasks {
         relocate("com.zaxxer", "orderium.zaxxer")
         relocate("org.bstats", "orderium.bstats")
         relocate('dev.faststats', 'orderium.faststats')
+    }
+}
+def faststatsToken = providers.environmentVariable('FASTSTATS_TOKEN')
+        .orElse(providers.gradleProperty('faststats.token'))
+        .orElse(providers.fileContents(layout.projectDirectory.file('faststats.token')).asText.map { it.trim() })
+        .orElse('')
+tasks.named('processResources') {
+    def token = faststatsToken
+    inputs.property('faststatsToken', token)
+    doLast {
+        def file = new File(destinationDir, 'META-INF/faststats/Orderium.token')
+        file.parentFile.mkdirs()
+        file.text = token.get()
     }
 }
 

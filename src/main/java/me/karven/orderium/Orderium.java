@@ -30,8 +30,8 @@ public final class Orderium extends JavaPlugin {
     public static Orderium plugin;
     public static boolean isFolia;
 
-    public final String faststatsToken = "241271513528286847e7c7ee08df7ec9";
-    private final BukkitContext faststatsContext = new BukkitContext.Factory(this, faststatsToken)
+//    public final String faststatsToken = "241271513528286847e7c7ee08df7ec9";
+    private final BukkitContext faststatsContext = new BukkitContext.Factory(this)
             .errorTrackerService(ERROR_TRACKER)
             .metrics(factory -> factory
                     .addMetric(CustomMetrics.API_USAGE)
