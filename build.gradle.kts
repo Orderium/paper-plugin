@@ -88,6 +88,12 @@ tasks.processResources {
     filesMatching("paper-plugin.yml") {
         expand(inputs.properties)
     }
+
+    doLast {
+        val tokenFile = File(destinationDir, "META-INF/faststats/Orderium.token")
+        tokenFile.parentFile.mkdirs()
+        tokenFile.writeText(faststatsToken.get())
+    }
 }
 
 modrinth {
