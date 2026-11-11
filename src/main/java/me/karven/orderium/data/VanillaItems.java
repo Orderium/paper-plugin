@@ -14,9 +14,8 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 public final class VanillaItems {
     private static final MethodHandle AS_BUKKIT_COPY = findAsBukkitCopy();
@@ -26,18 +25,16 @@ public final class VanillaItems {
         RegistryAccess registryAccess = server.registryAccess();
         CreativeModeTab.ItemDisplayParameters params = new CreativeModeTab.ItemDisplayParameters(FeatureFlags.VANILLA_SET, false, registryAccess);
         Registry<CreativeModeTab> tabs = BuiltInRegistries.CREATIVE_MODE_TAB;
-        Collection<net.minecraft.world.item.ItemStack> minecraftItems = new HashSet<>();
-        Set<VanillaItem> items = new HashSet<>();
+        Collection<net.minecraft.world.item.ItemStack> minecraftItems = new ArrayList<>();
 
         for (CreativeModeTab tab : tabs) {
             tab.buildContents(params);
             minecraftItems.addAll(tab.getSearchTabDisplayItems());
         }
 
-        for (net.minecraft.world.item.ItemStack mcItem : minecraftItems) {
-            items.add(new VanillaItem(asBukkitCopy(mcItem), true));
-        }
-        return items;
+        return minecraftItems.stream().map(
+                minecraftItem -> new VanillaItem(asBukkitCopy(minecraftItem), true)
+        ).toList();
     }
 
     private static ItemStack asBukkitCopy(net.minecraft.world.item.ItemStack mcItem) {

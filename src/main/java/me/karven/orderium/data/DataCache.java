@@ -24,8 +24,8 @@ public final class DataCache {
     }
 
     private static final Registry<BlockType> BLOCK_REGISTRY = Registry.BLOCK;
-    private final ArrayList<OrderItem> itemsAZ = new ArrayList<>();
-    private List<OrderItem> itemsZA;
+    private final List<OrderItem> itemsAZ = new ArrayList<>();
+    private final List<OrderItem> itemsZA = itemsAZ.reversed();
 
     private final Set<CustomItem> customItems = ConcurrentHashMap.newKeySet();
     private final Set<BlacklistedItem> blacklist = ConcurrentHashMap.newKeySet();
@@ -40,17 +40,14 @@ public final class DataCache {
     public void setItems(Collection<VanillaItem> vanillaItems, Collection<BlacklistedItem> blacklistedItems, Collection<CustomItem> customItems) {
         itemsAZ.clear();
 
-        final Collection<OrderItem> set = new TreeSet<>(AlgoUtils.getComparator(SortType.A_Z));
-        set.addAll(vanillaItems);
-        itemsAZ.addAll(set);
-
-        itemsAZ.addAll(customItems);
+        final Set<OrderItem> sortedItems = new TreeSet<>(AlgoUtils.getComparator(SortType.A_Z));
+        sortedItems.addAll(vanillaItems);
+        sortedItems.addAll(customItems);
+        itemsAZ.addAll(sortedItems);
 
         for (BlacklistedItem e : blacklistedItems) {
             itemsAZ.removeIf(orderItem -> orderItem.getItemStack().equals(e.getItemStack()));
         }
-
-        itemsZA = itemsAZ.reversed();
 
         Log.info("Loaded " + itemsAZ.size() + " items.");
         setBlacklistAndCustomItems(blacklistedItems, customItems);

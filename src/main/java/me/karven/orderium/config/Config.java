@@ -10,7 +10,7 @@ import me.karven.orderium.config.util.dialog.ManageOrderDialogConfig;
 import me.karven.orderium.config.util.dialog.NewOrderDialogConfig;
 import me.karven.orderium.config.util.dialog.SearchDialogConfig;
 import me.karven.orderium.gui.AdminToolGUI;
-import me.karven.orderium.gui.ChooseItemGUI;
+//import me.karven.orderium.gui.ChooseItemGUI;
 import me.karven.orderium.obj.OrderStatus;
 import me.karven.orderium.obj.SortType;
 import me.karven.orderium.order.Order;
@@ -195,7 +195,7 @@ public class Config {
     public static void reload() throws Exception {
         config = new Config();
 
-        ChooseItemGUI.init();
+//        ChooseItemGUI.init();
 
         AdminToolGUI.createBlacklist();
         AdminToolGUI.createCustomItems();
