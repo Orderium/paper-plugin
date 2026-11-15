@@ -177,6 +177,7 @@ public class Config {
             } catch (Exception e) {
                 Log.error("Failed to reload config", e);
                 future.completeExceptionally(e);
+                reloading.set(false);
                 return;
             }
 
