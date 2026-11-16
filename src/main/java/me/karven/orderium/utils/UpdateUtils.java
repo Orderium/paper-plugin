@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
 
 import static me.karven.orderium.Orderium.plugin;
 
@@ -22,7 +24,7 @@ public class UpdateUtils {
     /// Returns the newer version if available, otherwise returns null
     public static String checkForUpdates() {
         final String latestVer = fetchLatestVer();
-        if (latestVer == null || latestVer.compareTo(plugin.getPluginMeta().getVersion()) <= 0) return null;
+        if (latestVer == null || compareSemanticVersion(latestVer, plugin.getPluginMeta().getVersion()) <= 0) return null;
         return latestVer;
     }
 
@@ -49,7 +51,7 @@ public class UpdateUtils {
         return null;
     }
 
-    private static  String getRes(HttpURLConnection connection) throws IOException {
+    private static String getRes(HttpURLConnection connection) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
             StringBuilder response = new StringBuilder();
             String line;
@@ -58,5 +60,29 @@ public class UpdateUtils {
             }
             return response.toString();
         }
+    }
+
+    private static int compareSemanticVersion(final String a, final String b) {
+        final List<Integer> aSegments;
+        final List<Integer> bSegments;
+
+        try {
+            aSegments = Arrays.stream(a.split("\\.")).map(Integer::parseInt).toList();
+            bSegments = Arrays.stream(b.split("\\.")).map(Integer::parseInt).toList();
+
+            if (aSegments.size() != 3 || aSegments.size() != bSegments.size()) {
+                throw new RuntimeException();
+            }
+        } catch (Exception e) {
+            Log.warn("Cannot compare versions to check for updates, you are running a custom/development Orderium build.");
+            return 0;
+        }
+
+        for (int i = 0; i < 3; i++) {
+            final int aSegment = aSegments.get(i);
+            final int bSegment = bSegments.get(i);
+            if (aSegment != bSegment) return aSegment - bSegment;
+        }
+        return 0;
     }
 }
