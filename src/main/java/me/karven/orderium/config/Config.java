@@ -141,7 +141,6 @@ public class Config {
                 "minecraft:damage",
                 "minecraft:custom_name",
                 "minecraft:item_model",
-                "minecraft:bundle_contents",
                 "minecraft:damage_type",
                 "minecraft:consumable"
         ));
