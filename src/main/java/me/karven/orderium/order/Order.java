@@ -69,6 +69,8 @@ public abstract class Order implements me.karven.orderium.api.Order {
     protected abstract void handOut(Player owner, int amount);
 
     private void checkOrderStatusExistenceInOrderConfigsLore(final Config config) {
+        this.hasOrderStatusInMainGUIOrderConfigLore = false;
+        this.hasOrderStatusInYourOrdersGUIOrderConfigLore = false;
         for (final String line : config.mainGUIConfig.orderConfig.lore) {
             if (line.contains("<order-status>")) {
                 hasOrderStatusInMainGUIOrderConfigLore = true;
